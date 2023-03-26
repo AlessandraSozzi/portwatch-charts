@@ -1,1 +1,113 @@
-<h1>Test</h1>
+<!-- /* Author CSF */ -->
+
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/data.js"></script>
+
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+
+<link rel="stylesheet" type="text/css" href="Highcharts-IMF.css"/>
+
+<style>
+
+  #container {
+        height: 400px;
+        min-width: 600px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+
+  .highcharts-background {
+    fill: #eee; }
+
+  .highcharts-plot-background {
+    fill: #eee; }
+
+  body {
+    background-color: #eee; }
+
+</style>
+
+<figure class="highcharts-figure">
+  <div id="container"></div>
+  <div style="margin-right:10px">
+  <p style="text-align:right"><em>Sources: Refinitiv; Country authorities; IMF staff calculations.</em></p>
+  </div>
+</figure>
+
+
+<script>
+
+Highcharts.getJSON('https://demo-live-data.highcharts.com/aapl-c.json', function (data) {
+    // Create the chart
+    Highcharts.stockChart('container', {
+
+        chart: {
+            height: 300
+        },
+
+        rangeSelector: {
+            allButtonsEnabled: true,
+            buttons: [{
+                type: 'month',
+                count: 3,
+                text: 'Day',
+                dataGrouping: {
+                    forced: true,
+                    units: [['day', [1]]]
+                }
+            }, {
+                type: 'year',
+                count: 1,
+                text: 'Week',
+                dataGrouping: {
+                    forced: true,
+                    units: [['week', [1]]]
+                }
+            }, {
+                type: 'all',
+                text: 'Month',
+                dataGrouping: {
+                    forced: true,
+                    units: [['month', [1]]]
+                }
+            }],
+            buttonTheme: {
+                width: 60
+            },
+            selected: 2
+        },
+
+        title: {
+            text: 'AAPL Stock Price'
+        },
+
+        subtitle: {
+            text: 'Custom data grouping tied to range selector'
+        },
+
+        _navigator: {
+            enabled: false
+        },
+
+        series: [{
+            name: 'AAPL',
+            data: data,
+            marker: {
+                enabled: null, // auto
+                radius: 3,
+                lineWidth: 1,
+                lineColor: '#FFFFFF'
+            },
+            tooltip: {
+                valueDecimals: 2
+            }
+        }]
+    });
+});
+
+
+</script>
