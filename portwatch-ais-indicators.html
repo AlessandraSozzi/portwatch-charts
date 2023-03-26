@@ -13,7 +13,7 @@
 <style>
 
   #container {
-        height: 400px;
+        height: 600px;
         min-width: 600px;
         max-width: 800px;
         margin: 0 auto;
@@ -46,7 +46,11 @@ Highcharts.getJSON('https://demo-live-data.highcharts.com/aapl-c.json', function
     Highcharts.stockChart('container', {
 
         chart: {
-            height: 300
+            backgroundColor: '#eee',
+        },
+
+        credits: {
+          enabled: false
         },
 
         rangeSelector: {
