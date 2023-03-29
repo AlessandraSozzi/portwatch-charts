@@ -2,13 +2,15 @@
 
 <script src="https://code.highcharts.com/stock/highstock.js"></script>
 <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
 
 <script
   src="https://code.jquery.com/jquery-3.6.0.min.js"
   integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
   crossorigin="anonymous"></script>
 
-<link rel="stylesheet" type="text/css" href="Highcharts-IMF.css"/>
+<!-- <link rel="stylesheet" type="text/css" href="Highcharts-IMF.css"/> -->
 
 <style>
 
@@ -19,22 +21,42 @@
 
 
   .highcharts-background {
-    fill: #eee; }
+    fill: #fff; }
 
   .highcharts-plot-background {
-    fill: #eee; }
+    fill: #fff; }
 
   body {
-    background-color: #eee; }
+    background-color: #fff; }
 
 </style>
 
-<figure class="highcharts-figure">
-  <div id="container"></div>
-  <div style="margin-right:10px">
-  <p style="text-align:right"><em>Sources: Refinitiv; Country authorities; IMF staff calculations.</em></p>
+
+<div class="card text-center">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Port Calls</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Import Volume</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">Export Volume</a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+            <div style="margin-right:10px">
+                <p style="text-align:right"><em>Sources: UN Global Platform.</em></p>
+            </div>
+        </figure>
+    </div>
   </div>
-</figure>
+
+
 
 
 <script>
@@ -50,7 +72,7 @@ $(document).ready(function() {
     var options = {
         
         chart: {
-                backgroundColor: '#eee',
+                backgroundColor: '#fff',
         },
 
         credits: {
@@ -104,16 +126,50 @@ $(document).ready(function() {
         series: []
     };
 
+    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%20%3D%20%27"+portid+"%27&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&returnIdsOnly=true&outSR=&f=json"
+    var mydata = {
+        data: []
+    };
+    console.log(queryUrl);
+
+    $.getJSON(queryUrl,  function(data) {   
+        slice = 500;     
+        ids = data['objectIds'];
+        quotient = Math.trunc((ids.length)/slice);
+        rem = (ids.length)%slice;
+        console.log(quotient, rem);
+
+        features = {
+            data: []
+        };
+
+        for (let i = 0; i < quotient+1; i++) {
+            subset = ids.slice(0+i*slice, (i+1)*slice);
+            newQueryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?objectIds="+subset+"&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
+            console.log(newQueryUrl);
+/*             $.getJSON(newQueryUrl,  function(features) { 
+
+            }); */
+
+
+        }
+
+
+
+    });
+
+    console.log(mydata);
+
     var url =  "https://demo-live-data.highcharts.com/aapl-c.json";
 
     $.getJSON(url,  function(data) {
+
 
         options.series = [{
             name: 'AAPL',
             data: data,
             marker: {
-                enabled: null, // auto
-                radius: 3,
+                enabled: false, // auto
                 lineWidth: 1,
                 lineColor: '#FFFFFF'
             },
@@ -123,7 +179,7 @@ $(document).ready(function() {
         }];
 
 
-        var chart = new Highcharts.stockChart('container', options, function(chart){
+        var chart = new Highcharts.stockChart('container', options, function(chart) {
 
         });
 
