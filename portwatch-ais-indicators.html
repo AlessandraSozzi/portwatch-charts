@@ -42,7 +42,7 @@
           <a class="nav-link" href="#">Import Volume</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled" href="#">Export Volume</a>
+          <a class="nav-link" href="#">Export Volume</a>
         </li>
       </ul>
     </div>
@@ -79,37 +79,37 @@ $(document).ready(function() {
             enabled: false
             },
 
-        rangeSelector: {
-            allButtonsEnabled: true,
-            buttons: [{
-                type: 'month',
-                count: 3,
-                text: 'Day',
-                dataGrouping: {
-                    forced: true,
-                    units: [['day', [1]]]
-                }
-            }, {
-                type: 'year',
-                count: 1,
-                text: 'Week',
-                dataGrouping: {
-                    forced: true,
-                    units: [['week', [1]]]
-                }
-            }, {
-                type: 'all',
-                text: 'Month',
-                dataGrouping: {
-                    forced: true,
-                    units: [['month', [1]]]
-                }
-            }],
-            buttonTheme: {
-                width: 60
-            },
-            selected: 2
-        },
+        // rangeSelector: {
+        //     allButtonsEnabled: true,
+        //     buttons: [{
+        //         type: 'month',
+        //         count: 3,
+        //         text: 'Day',
+        //         dataGrouping: {
+        //             forced: true,
+        //             units: [['day', [1]]]
+        //         }
+        //     }, {
+        //         type: 'year',
+        //         count: 1,
+        //         text: 'Week',
+        //         dataGrouping: {
+        //             forced: true,
+        //             units: [['week', [1]]]
+        //         }
+        //     }, {
+        //         type: 'all',
+        //         text: 'Month',
+        //         dataGrouping: {
+        //             forced: true,
+        //             units: [['month', [1]]]
+        //         }
+        //     }],
+        //     buttonTheme: {
+        //         width: 60
+        //     },
+        //     selected: 2
+        // },
 
         title: {
             text: 'Port Calls'
@@ -125,6 +125,8 @@ $(document).ready(function() {
 
         series: []
     };
+
+    
 
     var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%20%3D%20%27"+portid+"%27&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&returnIdsOnly=true&outSR=&f=json"
     var mydata = {
@@ -176,6 +178,11 @@ $(document).ready(function() {
             tooltip: {
                 valueDecimals: 2
             }
+        },
+        {
+            name: 'AAPL2',
+            data: data,
+            type: 'column'
         }];
 
 
@@ -186,5 +193,17 @@ $(document).ready(function() {
     });
 
 }); 
+
+
+function movingAvg(array, countBefore, countAfter) {
+  if (countAfter == undefined) countAfter = 0;
+  const result = [];
+  for (let i = 0; i < array.length; i++) {
+    const subArr = array.slice(Math.max(i - countBefore, 0), Math.min(i + countAfter + 1, array.length));
+    const avg = subArr.reduce((a, b) => a + (isNaN(b) ? 0 : b), 0) / subArr.length;
+    result.push(avg);
+  }
+  return result;
+}
 
 </script>
