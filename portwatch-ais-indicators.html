@@ -42,6 +42,8 @@
     color: #54a2ee;
   }
 
+
+
 </style>
 
 
@@ -150,6 +152,22 @@ $(document).ready(function() {
         // subtitle: {
         //     text: 'By Type of Shipping Vessel'
         // },
+
+        xAxis: {
+            plotLines: [{
+                color: '#FF0000', // Red
+                width: 1,
+                value: Date.parse("2021-11-25"),  // "2023-02-06"
+                label: {
+                  text: "M7.8 Earthquake",
+                  rotation: 0,
+                  style: {
+                    color: '#FF0000',
+                    fontWeight: 'bold'
+                }
+                }
+            }]
+        },
 
 
         series: []
