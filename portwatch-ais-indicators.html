@@ -85,12 +85,17 @@ $(document).ready(function() {
     var options = {
         
         chart: {
-                backgroundColor: '#fff',
+          backgroundColor: '#fff',
         },
 
         credits: {
             enabled: false
-            },
+        },
+
+        legend: {
+          enabled: true
+
+        },
 
         // rangeSelector: {
         //     allButtonsEnabled: true,
@@ -196,11 +201,17 @@ $(document).ready(function() {
       series7dMA = timestamps.map(function(e, i) {
         return [e, values7dMA[i]];
       });
-      console.log(series7dMA);
+
+      const shift = 52*7; // shift of 52*7days - to keep comparing mondays with mondays, tuesdays with tuesdays, etc
+      series7dMAshifted = series7dMA.slice(shift+1).map(function(e, i) {
+        return [e[0], series7dMA[i][1]];
+      });
+      console.log(series7dMA[0]);
+      console.log(series7dMAshifted[0]);
 
       options.series = [
         {
-            name: 'Import Value',
+            name: 'Daily Imports Value (USD)',
             data: series,
             type: 'column',
             tooltip: {
@@ -208,10 +219,12 @@ $(document).ready(function() {
                 valueSuffix: ' USD'
             },
             color: '#004c97',
+            showInLegend: true
         },
         {
-          name: '7-day MA',
+          name: '7-day Moving Average',
           data: series7dMA,
+          type: 'line',
           marker: {
             enabled: false, // auto
             lineWidth: 1,
@@ -220,7 +233,24 @@ $(document).ready(function() {
           tooltip: {
                 valueDecimals: 0,
                 valueSuffix: ' USD'
-            }          
+            },
+          showInLegend: true          
+        },
+        {
+          name: 'Prior Year: 7-day Moving Average',
+          data: series7dMAshifted,
+          type: 'line',
+          marker: {
+            enabled: false, // auto
+            lineWidth: 1,
+          },
+          dashStyle: 'Dash',
+          color: '#474747',
+          tooltip: {
+                valueDecimals: 0,
+                valueSuffix: ' USD'
+            },
+          showInLegend: true          
         }
       ];
 
