@@ -84,6 +84,10 @@ $(document).ready(function() {
     const portid = urlParams.get('portid');
     console.log(portid);
 
+    var features = [];
+    var seriesCounter = 0;
+    const shift = 52*7; // shift of 52*7days - to keep comparing mondays with mondays, tuesdays with tuesdays, etc
+
     var options = {
         
         chart: {
@@ -98,38 +102,6 @@ $(document).ready(function() {
           enabled: true
 
         },
-
-        // rangeSelector: {
-        //     allButtonsEnabled: true,
-        //     buttons: [{
-        //         type: 'month',
-        //         count: 3,
-        //         text: 'Day',
-        //         dataGrouping: {
-        //             forced: true,
-        //             units: [['day', [1]]]
-        //         }
-        //     }, {
-        //         type: 'year',
-        //         count: 1,
-        //         text: 'Week',
-        //         dataGrouping: {
-        //             forced: true,
-        //             units: [['week', [1]]]
-        //         }
-        //     }, {
-        //         type: 'all',
-        //         text: 'Month',
-        //         dataGrouping: {
-        //             forced: true,
-        //             units: [['month', [1]]]
-        //         }
-        //     }],
-        //     buttonTheme: {
-        //         width: 60
-        //     },
-        //     selected: 2
-        // },
 
         title: {
             text: 'Import Volume'
@@ -157,7 +129,7 @@ $(document).ready(function() {
             plotLines: [{
                 color: '#FF0000', // Red
                 width: 1,
-                value: Date.parse("2021-11-25"),  // "2023-02-06"
+                value: Date.parse("2023-02-06"),  
                 label: {
                   text: "M7.8 Earthquake",
                   rotation: 0,
@@ -174,155 +146,221 @@ $(document).ready(function() {
     };
 
     
+    var queryUrlpart1 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%3D%27port1406%27%20AND%20objectID%20%3C%3D%20800&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
+    var queryUrlpart2 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%3D%27port1406%27%20AND%20objectID%20%3E%20800&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
 
-    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%20%3D%20%27"+portid+"%27&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
-    var mydata = {
-        data: []
-    };
+    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%20%3D%20%27port1406%27%20AND%20objectID%20%3C%20800&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
     console.log(queryUrl);
 
-    $.getJSON(queryUrl,  function(data) {   
-
+  //   Highcharts.ajax({  
+  //   url: queryUrl,  
+  //   dataType: 'text',  
+  //   success: function(data) { 
       
-      //console.log(data.features);
-      //var features = data.features.map(function(feature) {
-      //   feature.attributes.date = parseDate(feature.attributes.date);
-        
-      //   return feature;
-      // });
+  //     var parsed = jQuery.parseJSON(data);
 
-      // console.log(features);
+  //     // IMPORTS
+  //     var series = parsed.features.map(function(feature) {
+  //       pair = [Date.parse(feature.attributes.date), parseFloat(feature.attributes.import)];
+  //       return pair;
+  //     });
+  //     series.sort((a, b) => a[0] - b[0]);
+
+  //     var timestamps = series.map(x => x[0]);
+  //     var values = series.map(x => x[1]);
+  //     var values7dMA = movingAvg(values, 7, 0);
+
+  //     series7dMA = timestamps.map(function(e, i) {
+  //       return [e, values7dMA[i]];
+  //     });
+
+  //     series7dMAshifted = series7dMA.slice(shift+1).map(function(e, i) {
+  //       return [e[0], series7dMA[i][1]];
+  //     });
+  //     console.log(series7dMA[0]);
+  //     console.log(series7dMAshifted[0]);
+
+  //     options['yAxis'] = {
+  //       title: {
+  //         text: "Metric Tons"
+  //       },
+  //       opposite: false
+  //     }
+
+  //     options.series = [
+  //       {
+  //           name: 'Daily Imports Value (USD)',
+  //           data: series,
+  //           type: 'column',
+  //           tooltip: {
+  //               valueDecimals: 0,
+  //           },
+  //           color: '#004c97',
+  //           showInLegend: true
+  //       },
+  //       {
+  //         name: '7-day Moving Average',
+  //         data: series7dMA,
+  //         type: 'line',
+  //         marker: {
+  //           enabled: false, // auto
+  //           lineWidth: 1,
+  //         },
+  //         color: '#f3ab0a',
+  //         tooltip: {
+  //               valueDecimals: 0,
+  //           },
+  //         showInLegend: true          
+  //       },
+  //       {
+  //         name: 'Prior Year: 7-day Moving Average',
+  //         data: series7dMAshifted,
+  //         type: 'line',
+  //         marker: {
+  //           enabled: false, // auto
+  //           lineWidth: 1,
+  //         },
+  //         dashStyle: 'Dash',
+  //         color: '#474747',
+  //         tooltip: {
+  //               valueDecimals: 0,
+  //           },
+  //         showInLegend: true          
+  //       }
+  //     ];
+
+  //     options.title.text = "Port Yakacik: " + options.title.text
 
 
+  //       var chart = new Highcharts.stockChart('container', options, function(chart) {
 
-    });
-
-
-    Highcharts.ajax({  
-    url: queryUrl,  
-    dataType: 'text',  
-    success: function(data) { 
+  //       });
       
-      var parsed = jQuery.parseJSON(data);
+  //     },  
+  //     error: function (e, t) {  
+  //         console.error(e, t);  
+  //     }  
+  // });
 
-      // IMPORTS
-      var series = parsed.features.map(function(feature) {
-        pair = [Date.parse(feature.attributes.date), parseFloat(feature.attributes.import)];
-        return pair;
-      });
-      series.sort((a, b) => a[0] - b[0]);
 
-      var timestamps = series.map(x => x[0]);
-      var values = series.map(x => x[1]);
-      var values7dMA = movingAvg(values, 7, 0);
+function createChart(data) {
 
-      series7dMA = timestamps.map(function(e, i) {
-        return [e, values7dMA[i]];
-      });
+  options['yAxis'] = {
+    title: {
+      text: "Metric Tons"
+    },
+    opposite: false
+  }
 
-      const shift = 52*7; // shift of 52*7days - to keep comparing mondays with mondays, tuesdays with tuesdays, etc
-      series7dMAshifted = series7dMA.slice(shift+1).map(function(e, i) {
-        return [e[0], series7dMA[i][1]];
-      });
-      console.log(series7dMA[0]);
-      console.log(series7dMAshifted[0]);
+  var imports = data.map(x => [x.date, x.import]);
+  console.log(imports);
 
-      options['yAxis'] = {
-        title: {
-          text: "Metric Tons"
+  options.series = [
+    {
+        name: 'Daily Imports Value (USD)',
+        data: data.map(x => [x.date, x.import]),
+        type: 'column',
+        tooltip: {
+            valueDecimals: 0,
         },
-        opposite: false
-      }
+        color: '#004c97',
+        showInLegend: true
+    },
+    {
+      name: '7-day Moving Average',
+      data: data.map(x => [x.date, x.import7MA]),
+      type: 'line',
+      marker: {
+        enabled: false, // auto
+        lineWidth: 1,
+      },
+      color: '#f3ab0a',
+      tooltip: {
+            valueDecimals: 0,
+        },
+      showInLegend: true          
+    },
+    {
+      name: 'Prior Year: 7-day Moving Average',
+      data: data.slice(shift+1).map(x => [x.date, x.import7MAshifted]),
+      type: 'line',
+      marker: {
+        enabled: false, // auto
+        lineWidth: 1,
+      },
+      dashStyle: 'Dash',
+      color: '#474747',
+      tooltip: {
+            valueDecimals: 0,
+        },
+      showInLegend: true          
+    }
+  ];
 
-      options.series = [
-        {
-            name: 'Daily Imports Value (USD)',
-            data: series,
-            type: 'column',
-            tooltip: {
-                valueDecimals: 0,
-                valueSuffix: ' USD'
-            },
-            color: '#004c97',
-            showInLegend: true
-        },
-        {
-          name: '7-day Moving Average',
-          data: series7dMA,
-          type: 'line',
-          marker: {
-            enabled: false, // auto
-            lineWidth: 1,
-          },
-          color: '#f3ab0a',
-          tooltip: {
-                valueDecimals: 0,
-                valueSuffix: ' USD'
-            },
-          showInLegend: true          
-        },
-        {
-          name: 'Prior Year: 7-day Moving Average',
-          data: series7dMAshifted,
-          type: 'line',
-          marker: {
-            enabled: false, // auto
-            lineWidth: 1,
-          },
-          dashStyle: 'Dash',
-          color: '#474747',
-          tooltip: {
-                valueDecimals: 0,
-                valueSuffix: ' USD'
-            },
-          showInLegend: true          
+  options.title.text = "Port Yakacik: " + options.title.text;
+
+  var chart = new Highcharts.stockChart('container', options);
+
+}
+
+function success(data) {
+  features = features.concat(data.features);
+
+  // As chunks of data are loaded asynchronously, we don't know what order it
+  // will arrive. So keep a counter and create the chart when all the data is loaded.
+  seriesCounter += 1;
+
+    if (seriesCounter === 2) {
+
+      var series = features.map(function(feature) {
+        datapoint = {
+          date: Date.parse(feature.attributes.date),
+          cargo: parseInt(feature.attributes.portcalls_cargo),
+          tanker: parseInt(feature.attributes.portcalls_tanker),
+          portcalls: parseInt(feature.attributes.portcalls),
+          import: parseFloat(feature.attributes.import),
+          export: parseFloat(feature.attributes.export)
         }
-      ];
+                          
+        return datapoint;
+      });
+      series.sort((a, b) => a.date - b.date);
 
-      options.title.text = "Port Yakacik: " + options.title.text
+      var import7MA = movingAvg(series.map(x => x.import), 7, 0);
+      var export7MA = movingAvg(series.map(x => x.export), 7, 0);
+      var portcalls7MA = movingAvg(series.map(x => x.portcalls), 7, 0);
 
+      series = series.map(function(feature, i) {
 
-        var chart = new Highcharts.stockChart('container', options, function(chart) {
+        feature['import7MA'] = import7MA[i];
+        feature['export7MA'] = export7MA[i];
+        feature['portcalls7MA'] = portcalls7MA[i];
+        if (i > shift) {
+          feature['import7MAshifted'] = import7MA[i-shift];
+          feature['export7MAshifted'] = export7MA[i-shift];
+          feature['portcalls7MAshifted'] = portcalls7MA[i-shift];
+        }
 
-        });
+        return feature;
+      });
       
-      },  
-      error: function (e, t) {  
-          console.error(e, t);  
-      }  
-  });
+      console.log(series);
+
+      createChart(series);
+    }
+
+}
+
+  Highcharts.getJSON(
+      queryUrlpart1,
+      success
+  );
+  Highcharts.getJSON(
+      queryUrlpart2,
+      success
+  );
 
     
-
-    // var url =  "https://demo-live-data.highcharts.com/aapl-c.json";
-
-    // $.getJSON(url,  function(data) {
-
-    //   console.log(data);
-    //     options.series = [{
-    //         name: 'AAPL',
-    //         data: data,
-    //         marker: {
-    //             enabled: false, // auto
-    //             lineWidth: 1,
-    //             lineColor: '#FFFFFF'
-    //         },
-    //         tooltip: {
-    //             valueDecimals: 2
-    //         }
-    //     },
-    //     {
-    //         name: 'AAPL2',
-    //         data: data,
-    //         type: 'column'
-    //     }];
-
-
-    //     var chart = new Highcharts.stockChart('container', options, function(chart) {
-
-    //     });
-
-    // });
 
 }); 
 
