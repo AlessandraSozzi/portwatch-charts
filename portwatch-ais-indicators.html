@@ -130,17 +130,22 @@ $(document).ready(function() {
 
         plotOptions: {
           series: {
-              color: '#004c97'
+              // color: '#004c97',
+              dataGrouping: {
+                enabled: false
+              },
+              showInNavigator: true
           }
+        },
+
+        rangeSelector: {
+            selected: 4
         },
 
         // subtitle: {
         //     text: 'By Type of Shipping Vessel'
         // },
 
-        _navigator: {
-            enabled: false
-        },
 
         series: []
     };
@@ -177,22 +182,47 @@ $(document).ready(function() {
       
       var parsed = jQuery.parseJSON(data);
 
+      // IMPORTS
       var series = parsed.features.map(function(feature) {
         pair = [Date.parse(feature.attributes.date), parseFloat(feature.attributes.import)];
         return pair;
       });
       series.sort((a, b) => a[0] - b[0]);
-      console.log(series);
 
-      options.series = [{
+      var timestamps = series.map(x => x[0]);
+      var values = series.map(x => x[1]);
+      var values7dMA = movingAvg(values, 7, 0);
+
+      series7dMA = timestamps.map(function(e, i) {
+        return [e, values7dMA[i]];
+      });
+      console.log(series7dMA);
+
+      options.series = [
+        {
             name: 'Import Value',
             data: series,
             type: 'column',
             tooltip: {
                 valueDecimals: 0,
                 valueSuffix: ' USD'
-            }
-        }];
+            },
+            color: '#004c97',
+        },
+        {
+          name: '7-day MA',
+          data: series7dMA,
+          marker: {
+            enabled: false, // auto
+            lineWidth: 1,
+          },
+          color: '#f3ab0a',
+          tooltip: {
+                valueDecimals: 0,
+                valueSuffix: ' USD'
+            }          
+        }
+      ];
 
       options.title.text = "Port Yakacik: " + options.title.text
 
