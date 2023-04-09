@@ -227,6 +227,13 @@ $(document).ready(function() {
       console.log(series7dMA[0]);
       console.log(series7dMAshifted[0]);
 
+      options['yAxis'] = {
+        title: {
+          text: "Metric Tons"
+        },
+        opposite: false
+      }
+
       options.series = [
         {
             name: 'Daily Imports Value (USD)',
