@@ -100,6 +100,9 @@ var options = {
             enabled: false
           },
           showInNavigator: true
+      },
+      column: {
+        stacking: 'normal'
       }
     },
 
@@ -159,20 +162,42 @@ function createChart(data, name) {
     opposite: false
   }
 
+  if (name == "portcalls") {
 
-  options.series = [
-  {
-    name: seriesOptions[name].name,
-    data: data.map(x => [x.date, x[name]]),
-    type: 'column',
-    tooltip: {
+    options.series = [
+      { name: "Number of Cargo Ships",
+        data: data.map(x => [x.date, x['cargo']]),
+        type: 'column',
+        stack: 1,
+        tooltip: {
+          valueDecimals: 0,
+        },
+        color: '#afc5dc',
+        showInLegend: true},
+    { name: "Number of Tanker Ships",
+      data: data.map(x => [x.date, x['tanker']]),
+      type: 'column',
+      stack: 1,
+      tooltip: {
         valueDecimals: 0,
-    },
-    color: '#004c97',
-    showInLegend: true
-  },
-  {
-    name: '7-day Moving Average',
+      },
+      color: '#004c97',
+      showInLegend: true}];
+
+  } else {
+    options.series = [{ name: seriesOptions[name].name,
+                        data: data.map(x => [x.date, x[name]]),
+                        type: 'column',
+                        tooltip: {
+                          valueDecimals: 0,
+                        },
+                        color: '#004c97',
+                        showInLegend: true}];
+  }
+
+
+  options.series = options.series.concat([
+  { name: '7-day Moving Average',
     data: data.map(x => [x.date, x[name+"7MA"]]),
     type: 'line',
     marker: {
@@ -185,8 +210,7 @@ function createChart(data, name) {
       },
     showInLegend: true          
   },
-  {
-    name: 'Prior Year: 7-day Moving Average',
+  { name: 'Prior Year: 7-day Moving Average',
     data: data.slice(shift+1).map(x => [x.date, x[name+"7MAshifted"]]),
     type: 'line',
     marker: {
@@ -199,7 +223,7 @@ function createChart(data, name) {
           valueDecimals: 0,
       },
     showInLegend: true          
-  }];
+  }]);
 
   options['title'] = {
     text: "Port Yakacik: " + seriesOptions[name].title
