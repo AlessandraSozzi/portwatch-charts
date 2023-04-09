@@ -125,12 +125,18 @@ $(document).ready(function() {
         // },
 
         title: {
-            text: 'Port Calls'
+            text: 'Import Volume'
         },
 
-        subtitle: {
-            text: 'By Type of Shipping Vessel'
+        plotOptions: {
+          series: {
+              color: '#004c97'
+          }
         },
+
+        // subtitle: {
+        //     text: 'By Type of Shipping Vessel'
+        // },
 
         _navigator: {
             enabled: false
@@ -141,69 +147,97 @@ $(document).ready(function() {
 
     
 
-    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%20%3D%20%27"+portid+"%27&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&returnIdsOnly=true&outSR=&f=json"
+    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?where=portid%20%3D%20%27"+portid+"%27&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
     var mydata = {
         data: []
     };
     console.log(queryUrl);
 
     $.getJSON(queryUrl,  function(data) {   
-        slice = 500;     
-        ids = data['objectIds'];
-        quotient = Math.trunc((ids.length)/slice);
-        rem = (ids.length)%slice;
-        console.log(quotient, rem);
 
-        features = {
-            data: []
-        };
+      
+      //console.log(data.features);
+      //var features = data.features.map(function(feature) {
+      //   feature.attributes.date = parseDate(feature.attributes.date);
+        
+      //   return feature;
+      // });
 
-        for (let i = 0; i < quotient+1; i++) {
-            subset = ids.slice(0+i*slice, (i+1)*slice);
-            newQueryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Indicators/FeatureServer/0/query?objectIds="+subset+"&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
-            console.log(newQueryUrl);
-/*             $.getJSON(newQueryUrl,  function(features) { 
-
-            }); */
-
-
-        }
+      // console.log(features);
 
 
 
     });
 
-    console.log(mydata);
 
-    var url =  "https://demo-live-data.highcharts.com/aapl-c.json";
+    Highcharts.ajax({  
+    url: queryUrl,  
+    dataType: 'text',  
+    success: function(data) { 
+      
+      var parsed = jQuery.parseJSON(data);
 
-    $.getJSON(url,  function(data) {
+      var series = parsed.features.map(function(feature) {
+        pair = [Date.parse(feature.attributes.date), parseFloat(feature.attributes.import)];
+        return pair;
+      });
+      series.sort((a, b) => a[0] - b[0]);
+      console.log(series);
 
-
-        options.series = [{
-            name: 'AAPL',
-            data: data,
-            marker: {
-                enabled: false, // auto
-                lineWidth: 1,
-                lineColor: '#FFFFFF'
-            },
+      options.series = [{
+            name: 'Import Value',
+            data: series,
+            type: 'column',
             tooltip: {
-                valueDecimals: 2
+                valueDecimals: 0,
+                valueSuffix: ' USD'
             }
-        },
-        {
-            name: 'AAPL2',
-            data: data,
-            type: 'column'
         }];
+
+      options.title.text = "Port Yakacik: " + options.title.text
 
 
         var chart = new Highcharts.stockChart('container', options, function(chart) {
 
         });
+      
+      },  
+      error: function (e, t) {  
+          console.error(e, t);  
+      }  
+  });
 
-    });
+    
+
+    // var url =  "https://demo-live-data.highcharts.com/aapl-c.json";
+
+    // $.getJSON(url,  function(data) {
+
+    //   console.log(data);
+    //     options.series = [{
+    //         name: 'AAPL',
+    //         data: data,
+    //         marker: {
+    //             enabled: false, // auto
+    //             lineWidth: 1,
+    //             lineColor: '#FFFFFF'
+    //         },
+    //         tooltip: {
+    //             valueDecimals: 2
+    //         }
+    //     },
+    //     {
+    //         name: 'AAPL2',
+    //         data: data,
+    //         type: 'column'
+    //     }];
+
+
+    //     var chart = new Highcharts.stockChart('container', options, function(chart) {
+
+    //     });
+
+    // });
 
 }); 
 
