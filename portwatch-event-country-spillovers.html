@@ -15,7 +15,7 @@
 <style>
 
   body {
-    margin: 0px 20px 0px 0px ;
+    margin: 0px 20px 0px 20px ;
   }
 
   #container {
@@ -107,19 +107,21 @@ function createChart(data, name) {
       text: "Percent of GDP"
     },
     opposite: false,
-    min: 0
+    min: 0,
+    max: 8
   },
   {
     title: {
       text: "Percent of Maritime Trade"
     },
     opposite: true,
-    min: 0
+    min: 0,
+    max: 48
   }]
 
   options['xAxis'] = {
     categories : data.map(x => x.country),
-        crosshair: true
+        crosshair: false
   }
 
 
@@ -146,7 +148,7 @@ function createChart(data, name) {
     },
     color: '#c00000',
     tooltip: {
-          valueDecimals: 0,
+          valueDecimals: 2,
       },
     showInLegend: true          
   }];
