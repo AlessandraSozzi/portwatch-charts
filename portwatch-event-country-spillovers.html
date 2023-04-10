@@ -48,24 +48,10 @@
 
 
 <div class="card text-center">
-    <div class="card-header">
-      <ul class="nav nav-tabs card-header-tabs">
-        <li class="nav-item" id="portcalls">
-          <a class="nav-link active" href="#">Port Calls</a>
-        </li>
-        <li class="nav-item" id="import">
-          <a class="nav-link" href="#">Import Volume</a>
-        </li>
-        <li class="nav-item" id="export">
-          <a class="nav-link" href="#">Export Volume</a>
-        </li>
-      </ul>
-    </div>
     <div class="card-body">
         <figure class="highcharts-figure">
             <div id="container"></div>
             <div style="margin-right:10px">
-<!--                 <p style="text-align:right">Source: UN Global Platform.</p> -->
             </div>
         </figure>
     </div>
@@ -75,9 +61,6 @@
 
 
 <script>
-
-const shift = 52*7; // shift of 52*7days - to keep comparing mondays with mondays, tuesdays with tuesdays, etc
-
 
 var options = {
     
@@ -98,239 +81,131 @@ var options = {
       series: {
           dataGrouping: {
             enabled: false
-          },
-          showInNavigator: true
-      },
-      column: {
-        stacking: 'normal'
-      }
+          }      
+        }
     },
 
-    rangeSelector: {
-        selected: 1
-    },
+
 
     // subtitle: {
     //     text: 'By Type of Shipping Vessel'
     // },
 
-    xAxis: {
-        plotLines: [{
-            color: '#FF0000', // Red
-            width: 1,
-            value: Date.parse("2023-02-06"),  
-            label: {
-              text: "M7.8 Earthquake",
-              rotation: 0,
-              style: {
-                color: '#FF0000',
-                fontWeight: 'bold'
-            }
-            }
-        }]
-    },
-
-
     series: []
 };
 
-var seriesOptions = {
-  portcalls: {
-    yAxis: "Number of Ships",
-    title: "Daily Arrivals of Ships",
-    name: "Number of Ships"
-  },
-  import: {
-    yAxis: "Metric Tons",
-    title: "Import Volume",
-    name: 'Daily Import Volume'
-  },
-  export: {
-    yAxis: "Metric Tons",
-    title: "Export Volume",
-    name: 'Daily Export Volume'
-  }
-}
+
 
 function createChart(data, name) {
 
 
-  options['yAxis'] = {
+  options['yAxis'] = [{
     title: {
-      text: seriesOptions[name].yAxis
+      text: "Percent of GDP"
     },
-    opposite: false
-  }
+    opposite: false,
+    min: 0
+  },
+  {
+    title: {
+      text: "Percent of Maritime Trade"
+    },
+    opposite: true,
+    min: 0
+  }]
 
-  if (name == "portcalls") {
-
-    options.series = [
-      { name: "Number of Cargo Ships",
-        data: data.map(x => [x.date, x['cargo']]),
-        type: 'column',
-        stack: 1,
-        tooltip: {
-          valueDecimals: 0,
-        },
-        color: '#afc5dc',
-        showInLegend: true},
-    { name: "Number of Tanker Ships",
-      data: data.map(x => [x.date, x['tanker']]),
-      type: 'column',
-      stack: 1,
-      tooltip: {
-        valueDecimals: 0,
-      },
-      color: '#004c97',
-      showInLegend: true}];
-
-  } else {
-    options.series = [{ name: seriesOptions[name].name,
-                        data: data.map(x => [x.date, x[name]]),
-                        type: 'column',
-                        tooltip: {
-                          valueDecimals: 0,
-                        },
-                        color: '#004c97',
-                        showInLegend: true}];
+  options['xAxis'] = {
+    categories : data.map(x => x.country),
+        crosshair: true
   }
 
 
-  options.series = options.series.concat([
-  { name: '7-day Moving Average',
-    data: data.map(x => [x.date, x[name+"7MA"]]),
-    type: 'line',
-    marker: {
-      enabled: false, // auto
-      lineWidth: 1,
-    },
-    color: '#f3ab0a',
+  options.series = [
+  { name: 'Percent of GDP',
+    data: data.map(x => [x.country, x.value_perc_gdp]),
+    type: 'column',
+    color: '#004c97',
+    yAxis: 0,
     tooltip: {
-          valueDecimals: 0,
+          valueDecimals: 2,
       },
     showInLegend: true          
   },
-  { name: 'Prior Year: 7-day Moving Average',
-    data: data.slice(shift+1).map(x => [x.date, x[name+"7MAshifted"]]),
-    type: 'line',
+  { name: 'Percent of Maritime ' + name + ' Value (RHS)',
+    data: data.map(x => [x.country, x.value_perc_mar]),
+    type: 'scatter',
+    lineWidth: 0,
+    yAxis: 1,
     marker: {
-      enabled: false, // auto
-      lineWidth: 1,
+      enabled: true, // auto
+      lineWidth: 0,
+      radius:5
     },
-    dashStyle: 'Dash',
-    color: '#474747',
+    color: '#c00000',
     tooltip: {
           valueDecimals: 0,
       },
     showInLegend: true          
-  }]);
+  }];
 
   options['title'] = {
-    text: "Port Yakacik: " + seriesOptions[name].title
+    text: name + " Value at Risk"
   };
 
-  var chart = new Highcharts.stockChart('container', options);
+
+
+  var chart = new Highcharts.chart('container', options);
 
 }
 
 
 $(document).ready(function() {
 
-
-    const queryString = window.location.search;
+  const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const eventid = urlParams.get('eventid');
-    console.log(eventid);
+    const flow = urlParams.get('flow');
+    console.log(flow);
+
+
 
     var features = [];
-    var seriesCounter = 0;
     
     
-    var queryUrlpart1 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?where=eventid%3D%27"+eventid+"%27%20AND%20objectID%20%3C%3D%20800&outFields=eventid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
-    var queryUrlpart2 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?where=eventid%3D%27"+eventid+"%27%20AND%20objectID%20%3E%20800&outFields=eventid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
+    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/country_risks/FeatureServer/0/query?where=flow%3D%27"+ flow + "%27&outFields=iso3,value_perc_gdp,value_perc_mar,country,flow&returnGeometry=false&outSR=&f=json"
 
 
 function success(data) {
   features = features.concat(data.features);
 
-  // As chunks of data are loaded asynchronously, we don't know what order it
-  // will arrive. So keep a counter and create the chart when all the data is loaded.
-  seriesCounter += 1;
-
-    if (seriesCounter === 2) {
-
       var series = features.map(function(feature) {
         datapoint = {
-          date: Date.parse(feature.attributes.date),
-          cargo: parseInt(feature.attributes.portcalls_cargo),
-          tanker: parseInt(feature.attributes.portcalls_tanker),
-          portcalls: parseInt(feature.attributes.portcalls),
-          import: parseFloat(feature.attributes.import),
-          export: parseFloat(feature.attributes.export)
+          iso3: feature.attributes.iso3,
+          country: feature.attributes.country,
+          flow: feature.attributes.flow,
+          value_perc_gdp: parseFloat(feature.attributes.value_perc_gdp),
+          value_perc_mar: parseFloat(feature.attributes.value_perc_mar),
+
         }
                           
         return datapoint;
       });
-      series.sort((a, b) => a.date - b.date);
-
-      var import7MA = movingAvg(series.map(x => x.import), 7, 0);
-      var export7MA = movingAvg(series.map(x => x.export), 7, 0);
-      var portcalls7MA = movingAvg(series.map(x => x.portcalls), 7, 0);
-
-      series = series.map(function(feature, i) {
-
-        feature['import7MA'] = import7MA[i];
-        feature['export7MA'] = export7MA[i];
-        feature['portcalls7MA'] = portcalls7MA[i];
-        if (i > shift) {
-          feature['import7MAshifted'] = import7MA[i-shift];
-          feature['export7MAshifted'] = export7MA[i-shift];
-          feature['portcalls7MAshifted'] = portcalls7MA[i-shift];
-        }
-
-        return feature;
-      });
+      series.sort((a, b) => a.value_perc_gdp > b.value_perc_gdp);
       
       console.log(series);
 
-      createChart(series, "portcalls");
-
-      $('.nav.nav-tabs.card-header-tabs > li').on('click', function(e) {
-        $('.nav.nav-tabs.card-header-tabs > li > a').removeClass('active');
-        $(this).children().addClass('active');
-        const selected = $(this).attr('id');
-        console.log(selected);
-        createChart(series, selected);
-      }); 
-    }
+      createChart(series, flow);
 
 }
 
   Highcharts.getJSON(
-      queryUrlpart1,
-      success
-  );
-  Highcharts.getJSON(
-      queryUrlpart2,
+    queryUrl,
       success
   );
 
-  
 
     
 
 }); 
 
-
-function movingAvg(array, countBefore, countAfter) {
-  if (countAfter == undefined) countAfter = 0;
-  const result = [];
-  for (let i = 0; i < array.length; i++) {
-    const subArr = array.slice(Math.max(i - countBefore, 0), Math.min(i + countAfter + 1, array.length));
-    const avg = subArr.reduce((a, b) => a + (isNaN(b) ? 0 : b), 0) / subArr.length;
-    result.push(avg);
-  }
-  return result;
-}
 
 </script>
