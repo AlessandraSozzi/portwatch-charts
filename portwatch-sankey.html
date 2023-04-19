@@ -1,0 +1,215 @@
+<!-- /* Author CSF */ -->
+
+<script src="https://code.highcharts.com/modules/sankey.js"></script>
+<script src="https://code.highcharts.com/stock/modules/data.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+
+<!-- <link rel="stylesheet" type="text/css" href="Highcharts-IMF.css"/> -->
+
+<style>
+
+  body {
+    margin: 0px 20px 0px 20px ;
+  }
+
+  #container {
+        width: 100%;
+    }
+
+
+  .highcharts-background {
+    fill: #fff; }
+
+  .highcharts-plot-background {
+    fill: #fff; }
+
+  body {
+    background-color: #051d36; }
+
+  .card-header {
+    background-color: #051d36;
+    border-bottom: none;
+  }
+
+  .card.text-center {
+    border: none;
+  }
+
+  .nav-link {
+    color: #54a2ee;
+  }
+
+
+
+</style>
+
+
+<div class="card text-center">
+    <div class="card-body">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+            <div style="margin-right:10px">
+            </div>
+        </figure>
+    </div>
+  </div>
+
+
+
+
+<script>
+
+var options = {
+    
+    chart: {
+      backgroundColor: '#fff',
+    },
+
+    credits: {
+        enabled: false
+    },
+
+    legend: {
+      enabled: true
+
+    },
+
+    plotOptions: {
+      series: {
+          dataGrouping: {
+            enabled: false
+          }      
+        }
+    },
+
+
+
+    // subtitle: {
+    //     text: 'By Type of Shipping Vessel'
+    // },
+
+    series: []
+};
+
+
+
+function createChart(data, name) {
+
+
+  options['yAxis'] = [{
+    title: {
+      text: "Percent of GDP"
+    },
+    opposite: false,
+    min: 0,
+  },
+  {
+    title: {
+      text: "Percent of Maritime Trade"
+    },
+    opposite: true,
+    min: 0,
+  }]
+
+  options['xAxis'] = {
+    categories : data.map(x => x.country),
+        crosshair: false
+  }
+
+
+  options.series = [
+  { name: 'Percent of GDP',
+    data: data.map(x => [x.country, x.value_perc_gdp/12]),
+    type: 'column',
+    color: '#004c97',
+    yAxis: 0,
+    tooltip: {
+          valueDecimals: 2,
+          valueSuffix: "%"
+      },
+    showInLegend: true          
+  },
+  { name: 'Percent of Maritime ' + name + ' Value (RHS)',
+    data: data.map(x => [x.country, x.value_perc_mar/12]),
+    type: 'scatter',
+    lineWidth: 0,
+    yAxis: 1,
+    marker: {
+      enabled: true, // auto
+      lineWidth: 0,
+      radius:5
+    },
+    color: '#c00000',
+    tooltip: {
+          valueDecimals: 2,
+      },
+    showInLegend: true          
+  }];
+
+  options['title'] = {
+    text: name + " Value at Risk"
+  };
+
+
+
+  var chart = new Highcharts.chart('container', options);
+
+}
+
+
+$(document).ready(function() {
+
+  const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const flow = urlParams.get('flow');
+    console.log(flow);
+
+
+
+    var features = [];
+    
+    
+    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/country_risks/FeatureServer/0/query?where=flow%3D%27"+ flow + "%27&outFields=iso3,value_perc_gdp,value_perc_mar,country,flow&returnGeometry=false&outSR=&f=json"
+
+
+function success(data) {
+  features = features.concat(data.features);
+
+      var series = features.map(function(feature) {
+        datapoint = {
+          iso3: feature.attributes.iso3,
+          country: feature.attributes.country,
+          flow: feature.attributes.flow,
+          value_perc_gdp: parseFloat(feature.attributes.value_perc_gdp),
+          value_perc_mar: parseFloat(feature.attributes.value_perc_mar),
+
+        }
+                          
+        return datapoint;
+      });
+      series.sort((a, b) => a.value_perc_gdp > b.value_perc_gdp);
+      
+      console.log(series);
+
+      createChart(series, flow);
+
+}
+
+  Highcharts.getJSON(
+    queryUrl,
+      success
+  );
+
+
+    
+
+}); 
+
+
+</script>
