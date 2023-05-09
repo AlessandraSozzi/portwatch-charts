@@ -152,9 +152,10 @@ var seriesOptions = {
   }
 }
 
-function createChart(data, name) {
+function createChart(data, name, portname) {
 
-  const portname = data[0].portname;
+  console.log(portname);
+
 
   options['yAxis'] = {
     title: {
@@ -263,6 +264,8 @@ function success(data) {
 
     if (seriesCounter === nChunks) {
 
+      const portname = features[0].attributes.portname;
+
       var series = features.map(function(feature) {
         datapoint = {
           date: Date.parse(feature.attributes.date),
@@ -299,14 +302,14 @@ function success(data) {
       
       console.log(series);
 
-      createChart(series, "portcalls");
+      createChart(series, "portcalls", portname);
 
       $('.nav.nav-tabs.card-header-tabs > li').on('click', function(e) {
         $('.nav.nav-tabs.card-header-tabs > li > a').removeClass('active');
         $(this).children().addClass('active');
         const selected = $(this).attr('id');
         console.log(selected);
-        createChart(series, selected);
+        createChart(series, selected, portname);
       }); 
     }
 
