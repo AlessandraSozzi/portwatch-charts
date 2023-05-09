@@ -154,6 +154,7 @@ var seriesOptions = {
 
 function createChart(data, name) {
 
+  const portname = data[0].portname;
 
   options['yAxis'] = {
     title: {
@@ -226,7 +227,7 @@ function createChart(data, name) {
   }]);
 
   options['title'] = {
-    text: "Port Yakacik: " + seriesOptions[name].title
+    text: "Port " + portname + ": " + seriesOptions[name].title
   };
 
   var chart = new Highcharts.stockChart('container', options);
@@ -279,6 +280,8 @@ function success(data) {
       var import7MA = movingAvg(series.map(x => x.import), 7, 0);
       var export7MA = movingAvg(series.map(x => x.export), 7, 0);
       var portcalls7MA = movingAvg(series.map(x => x.portcalls), 7, 0);
+
+
 
       series = series.map(function(feature, i) {
 
