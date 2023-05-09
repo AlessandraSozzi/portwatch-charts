@@ -327,7 +327,7 @@ function getArcGISdata(data) {
       const lastObjectId = chunk[chunk.length-1];
       console.log(firstObjectId, lastObjectId);
 
-      const queryUrl = baseUrl+"where=portid%3D%27"+portid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=portid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json";
+      const queryUrl = baseUrl+"where=portid%3D%27"+portid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=portid,portname,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json";
 
       Highcharts.getJSON(
         queryUrl,
