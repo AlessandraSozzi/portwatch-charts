@@ -226,7 +226,7 @@ function createChart(data, name) {
   }]);
 
   options['title'] = {
-    text: "Port Yakacik: " + seriesOptions[name].title
+    text: seriesOptions[name].title
   };
 
   var chart = new Highcharts.stockChart('container', options);
