@@ -113,19 +113,7 @@ var options = {
     // },
 
     xAxis: {
-        plotLines: [{
-            color: '#FF0000', // Red
-            width: 1,
-            value: Date.parse("2023-02-06"),  
-            label: {
-              text: "M7.8 Earthquake",
-              rotation: 0,
-              style: {
-                color: '#FF0000',
-                fontWeight: 'bold'
-            }
-            }
-        }]
+        plotLines: []
     },
 
 
@@ -250,7 +238,7 @@ $(document).ready(function() {
 
 
     var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/AIS_Indicators/FeatureServer/0/query?"
-
+    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions/FeatureServer/34/query?"
 
 
 function success(data) {
@@ -340,13 +328,43 @@ function getArcGISdata(data) {
 
 }
 
+function getEvents(data) {
+
+  events = data.features;
+  pos = -5
+
+  for (let i = 0; i < events.length; i++) {
+    pos = (pos === -5 ? 10 : -5);
+    options['xAxis']['plotLines'].push({
+          color: '#FF0000', // Red
+          width: 1,
+          value: events[i].attributes.fromdate,  
+          label: {
+            text: events[i].attributes.eventname,
+            rotation: 0,
+            y: pos,
+            style: {
+              color: '#FF0000',
+              fontWeight: 'bold'
+            }
+          }
+    })
+
+  }
+
+  console.log(options['xAxis']['plotLines']);
+}
+
+
 Highcharts.getJSON(
   baseUrl+"where=portid%3D%27"+portid+"%27&outFields=*&returnIdsOnly=true&outSR=4326&f=json",
   getArcGISdata
 );
 
-  
-
+Highcharts.getJSON(
+  eventsUrl+"where=portid%3D%27"+portid+"%27&outFields=*&outSR=4326&f=json",
+  getEvents
+);
     
 
 }); 
