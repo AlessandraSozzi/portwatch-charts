@@ -115,19 +115,7 @@ var options = {
     // },
 
     xAxis: {
-        plotLines: [{
-            color: '#FF0000', // Red
-            width: 1,
-            value: Date.parse("2023-02-06"),  
-            label: {
-              text: "M7.8 Earthquake",
-              rotation: 0,
-              style: {
-                color: '#FF0000',
-                fontWeight: 'bold'
-            }
-            }
-        }]
+        plotLines: []
     },
 
 
@@ -248,6 +236,7 @@ $(document).ready(function() {
     
     var queryUrlpart1 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?where=eventid%3D%27"+eventid+"%27%20AND%20objectID%20%3C%3D%20800&outFields=eventid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
     var queryUrlpart2 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?where=eventid%3D%27"+eventid+"%27%20AND%20objectID%20%3E%20800&outFields=eventid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
+    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions/FeatureServer/34/query?"
 
 
 function success(data) {
@@ -306,6 +295,34 @@ function success(data) {
 
 }
 
+function getEvents(data) {
+
+  events = data.features;
+  console.log(events);
+  pos = -5
+
+  for (let i = 0; i < events.length; i++) {
+    pos = (pos === -5 ? 10 : -5);
+    options['xAxis']['plotLines'].push({
+          color: '#FF0000', // Red
+          width: 1,
+          value: events[i].attributes.fromdate,  
+          label: {
+            text: events[i].attributes.eventname,
+            rotation: 0,
+            y: pos,
+            style: {
+              color: '#FF0000',
+              fontWeight: 'bold'
+            }
+          }
+    })
+
+}
+
+console.log(options['xAxis']['plotLines']);
+}
+
   Highcharts.getJSON(
       queryUrlpart1,
       success
@@ -314,6 +331,11 @@ function success(data) {
       queryUrlpart2,
       success
   );
+
+  Highcharts.getJSON(
+  eventsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
+  getEvents
+);
 
   
 
