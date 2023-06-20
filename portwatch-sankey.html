@@ -1,5 +1,6 @@
 <!-- /* Author CSF */ -->
 
+<script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/sankey.js"></script>
 <script src="https://code.highcharts.com/stock/modules/data.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -24,10 +25,10 @@
 
 
   .highcharts-background {
-    fill: #fff; }
+    fill: #051d36; }
 
   .highcharts-plot-background {
-    fill: #fff; }
+    fill: #051d36; }
 
   body {
     background-color: #051d36; }
@@ -39,6 +40,10 @@
 
   .card.text-center {
     border: none;
+  }
+
+  .card-body {
+    background-color: #051d36;
   }
 
   .nav-link {
@@ -66,150 +71,60 @@
 <script>
 
 var options = {
-    
     chart: {
       backgroundColor: '#fff',
     },
-
+    title: {
+      text: 'Highcharts Sankey Diagram'
+    },
     credits: {
         enabled: false
     },
-
-    legend: {
-      enabled: true
-
-    },
-
-    plotOptions: {
-      series: {
-          dataGrouping: {
-            enabled: false
-          }      
-        }
-    },
-
-
-
-    // subtitle: {
-    //     text: 'By Type of Shipping Vessel'
-    // },
-
     series: []
 };
 
+function success(data) {
 
+  console.log(data);
 
-function createChart(data, name) {
-
-
-  options['yAxis'] = [{
-    title: {
-      text: "Percent of GDP"
-    },
-    opposite: false,
-    min: 0,
-  },
-  {
-    title: {
-      text: "Percent of Maritime Trade"
-    },
-    opposite: true,
-    min: 0,
-  }]
-
-  options['xAxis'] = {
-    categories : data.map(x => x.country),
-        crosshair: false
-  }
-
-
-  options.series = [
-  { name: 'Percent of GDP',
-    data: data.map(x => [x.country, x.value_perc_gdp/12]),
-    type: 'column',
-    color: '#004c97',
-    yAxis: 0,
-    tooltip: {
-          valueDecimals: 2,
-          valueSuffix: "%"
-      },
-    showInLegend: true          
-  },
-  { name: 'Percent of Maritime ' + name + ' Value (RHS)',
-    data: data.map(x => [x.country, x.value_perc_mar/12]),
-    type: 'scatter',
-    lineWidth: 0,
-    yAxis: 1,
-    marker: {
-      enabled: true, // auto
-      lineWidth: 0,
-      radius:5
-    },
-    color: '#c00000',
-    tooltip: {
-          valueDecimals: 2,
-      },
-    showInLegend: true          
+  series = [{
+      keys: ['from', 'to', 'weight'],
+      data: [],
+      type: 'sankey',
+      name: 'Sankey demo series'
   }];
+  
+  series[0]['data'] = data.features.map(function(feature) {               
+        return [feature.attributes['source'], 
+                feature.attributes['target'],   
+                parseFloat(feature.attributes['perc_disaster_capacity'])];
+  });
 
-  options['title'] = {
-    text: name + " Value at Risk"
-  };
+  console.log(series);
 
-
-
-  var chart = new Highcharts.chart('container', options);
+  options['series'] = series;
+  var chart = new Highcharts.Chart('container', options);
 
 }
 
 
 $(document).ready(function() {
 
-  const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const flow = urlParams.get('flow');
-    console.log(flow);
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const eventid = urlParams.get('eventid');
+console.log(eventid);
 
 
+var features = [];
+var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/sankey_data/FeatureServer/0/query?"
 
-    var features = [];
-    
-    
-    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/country_risks/FeatureServer/0/query?where=flow%3D%27"+ flow + "%27&outFields=iso3,value_perc_gdp,value_perc_mar,country,flow&returnGeometry=false&outSR=&f=json"
+Highcharts.getJSON(
+  baseUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
+  success
+);
 
-
-function success(data) {
-  features = features.concat(data.features);
-
-      var series = features.map(function(feature) {
-        datapoint = {
-          iso3: feature.attributes.iso3,
-          country: feature.attributes.country,
-          flow: feature.attributes.flow,
-          value_perc_gdp: parseFloat(feature.attributes.value_perc_gdp),
-          value_perc_mar: parseFloat(feature.attributes.value_perc_mar),
-
-        }
-                          
-        return datapoint;
-      });
-      series.sort((a, b) => a.value_perc_gdp > b.value_perc_gdp);
-      
-      console.log(series);
-
-      createChart(series, flow);
-
-}
-
-  Highcharts.getJSON(
-    queryUrl,
-      success
-  );
-
-
-    
-
-}); 
+});
 
 
 </script>
