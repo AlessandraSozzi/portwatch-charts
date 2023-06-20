@@ -228,25 +228,27 @@ $(document).ready(function() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const eventid = urlParams.get('eventid');
+    const fromdate = parseInt(urlParams.get('fromdate'));
     console.log(eventid);
+    console.log(fromdate);
 
     var features = [];
     var seriesCounter = 0;
+    var nChunks;
     
-    
-    var queryUrlpart1 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?where=eventid%3D%27"+eventid+"%27%20AND%20objectID%20%3C%3D%20800&outFields=eventid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
-    var queryUrlpart2 = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?where=eventid%3D%27"+eventid+"%27%20AND%20objectID%20%3E%20800&outFields=eventid,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json"
-    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions/FeatureServer/34/query?"
+    var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?"
+    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions/FeatureServer/30/query?"
 
 
 function success(data) {
+  
   features = features.concat(data.features);
 
   // As chunks of data are loaded asynchronously, we don't know what order it
   // will arrive. So keep a counter and create the chart when all the data is loaded.
   seriesCounter += 1;
 
-    if (seriesCounter === 2) {
+    if (seriesCounter === nChunks) {
 
       var series = features.map(function(feature) {
         datapoint = {
@@ -295,6 +297,31 @@ function success(data) {
 
 }
 
+function getArcGISdata(data) {
+  
+  objectIds = data['objectIds'].sort(function(a, b){return a - b});
+  console.log(objectIds);
+  
+  const chunkSize = 1000;
+  nChunks = Math.ceil(objectIds.length/chunkSize);
+
+  for (let i = 0; i < objectIds.length; i += chunkSize) {
+      const chunk = objectIds.slice(i, i + chunkSize);
+      const firstObjectId = chunk[0];
+      const lastObjectId = chunk[chunk.length-1];
+      console.log(firstObjectId, lastObjectId);
+
+      const queryUrl = baseUrl+"where=eventid%3D%27"+eventid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json";
+
+      Highcharts.getJSON(
+        queryUrl,
+        success
+      );
+
+  }
+
+}
+
 function getEvents(data) {
 
   events = data.features;
@@ -306,7 +333,7 @@ function getEvents(data) {
     options['xAxis']['plotLines'].push({
           color: '#FF0000', // Red
           width: 1,
-          value: events[i].attributes.fromdate,  
+          value: events[i].attributes.fromdate_,  
           label: {
             text: events[i].attributes.eventname,
             rotation: 0,
@@ -323,14 +350,10 @@ function getEvents(data) {
 console.log(options['xAxis']['plotLines']);
 }
 
-  Highcharts.getJSON(
-      queryUrlpart1,
-      success
-  );
-  Highcharts.getJSON(
-      queryUrlpart2,
-      success
-  );
+Highcharts.getJSON(
+  baseUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&returnIdsOnly=true&outSR=4326&f=json",
+  getArcGISdata
+);
 
   Highcharts.getJSON(
   eventsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
