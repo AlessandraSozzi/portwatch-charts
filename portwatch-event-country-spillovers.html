@@ -168,14 +168,16 @@ $(document).ready(function() {
   const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const flow = urlParams.get('flow');
+    const eventid = urlParams.get('eventid');
     console.log(flow);
+    console.log(eventid);
 
 
 
     var features = [];
     
     
-    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/country_risks/FeatureServer/0/query?where=flow%3D%27"+ flow + "%27&outFields=iso3,value_perc_gdp,value_perc_mar,country,flow&returnGeometry=false&outSR=&f=json"
+    var queryUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/spillovers_country/FeatureServer/0/query?where=flow%3D%27"+ flow + "%27%20AND%20eventid%3D%27"+ eventid + "%27&outFields=iso3,value_perc_gdp,value_perc_mar,country,flow&returnGeometry=false&outSR=&f=json"
 
 
 function success(data) {
