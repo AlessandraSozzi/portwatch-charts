@@ -195,7 +195,7 @@ function success(data) {
                           
         return datapoint;
       });
-      series.sort((a, b) => a.value_perc_gdp > b.value_perc_gdp);
+      series.sort((a, b) => b.value_perc_gdp > a.value_perc_gdp);
       
       console.log(series);
 
