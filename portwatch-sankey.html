@@ -50,6 +50,18 @@
     color: #54a2ee;
   }
 
+  .column {
+  float: left;
+}
+
+.left, .right {
+  width: 25%;
+}
+
+.middle {
+  width: 50%;
+}
+
 
 
 </style>
@@ -58,6 +70,17 @@
 <div class="card text-center">
     <div class="card-body">
         <figure class="highcharts-figure">
+          <div class="row">
+            <div class="column left" style="color:#fff;">
+              <p>Sends goods to:</p>
+            </div>
+            <div class="column middle" style="color:#fff;">
+              <h6>Disrupted ports</h6>
+            </div>
+            <div class="column right" style="color:#fff;">
+              <p>Receives goods from:</p>
+            </div>
+          </div>
             <div id="container"></div>
             <div style="margin-right:10px">
             </div>
@@ -74,9 +97,9 @@ var options = {
     chart: {
       backgroundColor: '#fff',
     },
-    // title: {
-    //   text: 'Highcharts Sankey Diagram'
-    // },
+    title: {
+     text: ''
+    },
     credits: {
         enabled: false
     },
@@ -99,11 +122,13 @@ function success(data) {
       keys: ['from', 'to', 'weight', 'from_name', 'to_name'],
       data: [],
       nodes: [],
-      colorKey: 'target',
+      //colorKey: 'target',
       type: 'sankey'
   }];
 
-  mapper = {}
+  mapper = {};
+  colorkeys = {};
+  ckey = 0;
   
   series[0]['data'] = data.features.map(function(feature) {    
         console.log(feature.attributes['source']);
@@ -119,6 +144,11 @@ function success(data) {
         //   mapper[feature.attributes['to_']] = new Set([feature.attributes['target']])
         mapper[feature.attributes['source']] = feature.attributes['from_'];
         mapper[feature.attributes['target']] = feature.attributes['to_'];
+        if (!(feature.attributes['from_'] in colorkeys)) 
+          colorkeys[feature.attributes['from_']] = ckey++;
+        if (!(feature.attributes['to_'] in colorkeys))
+          colorkeys[feature.attributes['to_']] = ckey++;
+
 
         return [feature.attributes['source'], 
                 feature.attributes['target'],   
@@ -128,13 +158,14 @@ function success(data) {
   });
 
   console.log(mapper);
-
+  console.log(colorkeys);
 
   for (const [key, value] of Object.entries(mapper)) {
     console.log(key, value);
     series[0].nodes.push({
       id: parseInt(key),
-      name: value
+      name: value,
+      colorIndex: colorkeys[value]
     });
   }
 
