@@ -74,13 +74,21 @@ var options = {
     chart: {
       backgroundColor: '#fff',
     },
-    title: {
-      text: 'Highcharts Sankey Diagram'
-    },
+    // title: {
+    //   text: 'Highcharts Sankey Diagram'
+    // },
     credits: {
         enabled: false
     },
     series: []
+    // plotOptions: {
+    //     sankey: {
+    //         dataLabels: {
+    //             enabled: true,
+    //             format: '<b>{point.from}</b>: {point.weight:.1f} %'
+    //         }
+    //     }
+    // }
 };
 
 function success(data) {
@@ -88,21 +96,65 @@ function success(data) {
   console.log(data);
 
   series = [{
-      keys: ['from', 'to', 'weight'],
+      keys: ['from', 'to', 'weight', 'from_name', 'to_name'],
       data: [],
-      type: 'sankey',
-      name: 'Sankey demo series'
+      nodes: [],
+      colorKey: 'target',
+      type: 'sankey'
   }];
+
+  mapper = {}
   
-  series[0]['data'] = data.features.map(function(feature) {               
+  series[0]['data'] = data.features.map(function(feature) {    
+        console.log(feature.attributes['source']);
+        
+        // if (feature.attributes['from_'] in mapper) 
+        //   mapper[feature.attributes['from_']].add(feature.attributes['source'])
+        // else
+        //   mapper[feature.attributes['from_']] = new Set([feature.attributes['source']])
+
+        // if (feature.attributes['to_'] in mapper) 
+        //   mapper[feature.attributes['to_']].add(feature.attributes['target'])
+        // else
+        //   mapper[feature.attributes['to_']] = new Set([feature.attributes['target']])
+        mapper[feature.attributes['source']] = feature.attributes['from_'];
+        mapper[feature.attributes['target']] = feature.attributes['to_'];
+
         return [feature.attributes['source'], 
                 feature.attributes['target'],   
-                parseFloat(feature.attributes['perc_disaster_capacity'])];
+                parseFloat(feature.attributes['perc_disaster_capacity']),
+                feature.attributes['from_'],
+                feature.attributes['to_']]
   });
+
+  console.log(mapper);
+
+
+  for (const [key, value] of Object.entries(mapper)) {
+    console.log(key, value);
+    series[0].nodes.push({
+      id: parseInt(key),
+      name: value
+    });
+  }
 
   console.log(series);
 
+
+
+
+
   options['series'] = series;
+
+  options['tooltip'] = {
+    formatter: function() {
+        return 'From <b>' + this.point.from_name + 
+                '</b> to <b>' + this.point.to_name + 
+                '</b>: '+ this.point.weight.toFixed(2) + '%';
+    }
+}
+
+
   var chart = new Highcharts.Chart('container', options);
 
 }
