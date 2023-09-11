@@ -228,21 +228,22 @@ $(document).ready(function() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const eventid = urlParams.get('eventid');
-    const fromdate = parseInt(urlParams.get('fromdate'));
+//    const fromdate = parseInt(urlParams.get('fromdate'));
     console.log(eventid);
-    console.log(fromdate);
+//console.log(fromdate);
 
     var features = [];
     var seriesCounter = 0;
     var nChunks;
     
-    var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_AIS_Event_Indicators/FeatureServer/0/query?"
-    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions/FeatureServer/30/query?"
+    var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Trade_Data_by_Event/FeatureServer/0/query?"
+    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions_database/FeatureServer/0/query?"
 
 
 function success(data) {
   
   features = features.concat(data.features);
+
 
   // As chunks of data are loaded asynchronously, we don't know what order it
   // will arrive. So keep a counter and create the chart when all the data is loaded.
@@ -252,7 +253,7 @@ function success(data) {
 
       var series = features.map(function(feature) {
         datapoint = {
-          date: Date.parse(feature.attributes.date),
+          date: feature.attributes.date,
           cargo: parseInt(feature.attributes.portcalls_cargo),
           tanker: parseInt(feature.attributes.portcalls_tanker),
           portcalls: parseInt(feature.attributes.portcalls),
@@ -282,8 +283,6 @@ function success(data) {
         return feature;
       });
       
-      console.log(series);
-
       createChart(series, "portcalls");
 
       $('.nav.nav-tabs.card-header-tabs > li').on('click', function(e) {
@@ -298,9 +297,10 @@ function success(data) {
 }
 
 function getArcGISdata(data) {
+
   
   objectIds = data['objectIds'].sort(function(a, b){return a - b});
-  console.log(objectIds);
+  //console.log(objectIds);
   
   const chunkSize = 1000;
   nChunks = Math.ceil(objectIds.length/chunkSize);
@@ -325,7 +325,7 @@ function getArcGISdata(data) {
 function getEvents(data) {
 
   events = data.features;
-  console.log(events);
+  //console.log(events);
   pos = -5
 
   for (let i = 0; i < events.length; i++) {
@@ -333,7 +333,7 @@ function getEvents(data) {
     options['xAxis']['plotLines'].push({
           color: '#FF0000', // Red
           width: 1,
-          value: events[i].attributes.fromdate_,  
+          value: events[i].attributes.fromdate,  
           label: {
             text: events[i].attributes.eventname,
             rotation: 0,
