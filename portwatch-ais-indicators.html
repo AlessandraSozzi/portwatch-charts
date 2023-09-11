@@ -217,6 +217,8 @@ function createChart(data, name, portname) {
     text: "Port " + portname + ": " + seriesOptions[name].title
   };
 
+  console.log(options.series);
+
   var chart = new Highcharts.stockChart('container', options);
 
 }
@@ -238,7 +240,7 @@ $(document).ready(function() {
 
 
     var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/AIS_Indicators/FeatureServer/0/query?"
-    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions/FeatureServer/34/query?"
+    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/disruptions_with_ports/FeatureServer/0/query?"
 
 
 function success(data) {
@@ -255,7 +257,7 @@ function success(data) {
 
       var series = features.map(function(feature) {
         datapoint = {
-          date: Date.parse(feature.attributes.date),
+          date: Date.parse(feature.attributes.date), // need to make this date in the data
           cargo: parseInt(feature.attributes.portcalls_cargo),
           tanker: parseInt(feature.attributes.portcalls_tanker),
           portcalls: parseInt(feature.attributes.portcalls),
