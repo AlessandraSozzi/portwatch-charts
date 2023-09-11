@@ -257,7 +257,7 @@ function success(data) {
 
       var series = features.map(function(feature) {
         datapoint = {
-          date: Date.parse(feature.attributes.date), // need to make this date in the data
+          date: feature.attributes.date, 
           cargo: parseInt(feature.attributes.portcalls_cargo),
           tanker: parseInt(feature.attributes.portcalls_tanker),
           portcalls: parseInt(feature.attributes.portcalls),
