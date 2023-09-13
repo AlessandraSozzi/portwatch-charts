@@ -125,7 +125,7 @@ function createChart(data, name) {
 
   options.series = [
   { name: 'Percent of GDP',
-    data: data.map(x => [x.country, x.value_perc_gdp/12]),
+    data: data.map(x => [x.country, x.value_perc_gdp]),
     type: 'column',
     color: '#004c97',
     yAxis: 0,
@@ -136,7 +136,7 @@ function createChart(data, name) {
     showInLegend: true          
   },
   { name: 'Percent of Maritime ' + name + ' Value (RHS)',
-    data: data.map(x => [x.country, x.value_perc_mar/12]),
+    data: data.map(x => [x.country, x.value_perc_mar]), 
     type: 'scatter',
     lineWidth: 0,
     yAxis: 1,
