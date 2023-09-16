@@ -41,6 +41,11 @@
     color: #54a2ee;
   }
 
+  #source {
+    font-size: x-small;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
 
 
 </style>
@@ -63,8 +68,8 @@
     <div class="card-body">
         <figure class="highcharts-figure">
             <div id="container"></div>
-            <div style="margin-right:10px">
-<!--                 <p style="text-align:right">Source: UN Global Platform.</p> -->
+            <div style="margin-right:10px">                 
+              <p id="source" style="text-align:right">Sources: UN Global Platform; PortWatch.</p> 
             </div>
         </figure>
     </div>
@@ -108,12 +113,8 @@ var options = {
         selected: 1
     },
 
-    // subtitle: {
-    //     text: 'By Type of Shipping Vessel'
-    // },
-
     xAxis: {
-        plotLines: []
+        plotBands: []
     },
 
 
@@ -337,10 +338,27 @@ function getEvents(data) {
 
   for (let i = 0; i < events.length; i++) {
     pos = (pos === -5 ? 10 : -5);
-    options['xAxis']['plotLines'].push({
+/*     options['xAxis']['plotLines'].push({
           color: '#FF0000', // Red
           width: 1,
           value: events[i].attributes.fromdate,  
+          label: {
+            text: events[i].attributes.eventname,
+            rotation: 0,
+            y: pos,
+            style: {
+              color: '#FF0000',
+              fontWeight: 'bold'
+            }
+          }
+    }) */
+
+    options['xAxis']['plotBands'].push({
+          color: 'rgba(255, 0, 0, 0.1)', // Red
+          borderColor: '#FF0000',
+          borderWidth: 0.1,
+          from: events[i].attributes.fromdate, 
+          to:  events[i].attributes.todate, 
           label: {
             text: events[i].attributes.eventname,
             rotation: 0,
@@ -354,7 +372,7 @@ function getEvents(data) {
 
   }
 
-  console.log(options['xAxis']['plotLines']);
+  console.log(options['xAxis']['plotBands']);
 }
 
 
