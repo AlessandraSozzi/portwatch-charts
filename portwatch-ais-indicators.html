@@ -110,7 +110,7 @@ var options = {
     },
 
     rangeSelector: {
-        selected: 1
+        selected: 1 // By default 3 months is selected
     },
 
     xAxis: {
@@ -338,20 +338,6 @@ function getEvents(data) {
 
   for (let i = 0; i < events.length; i++) {
     pos = (pos === -5 ? 10 : -5);
-/*     options['xAxis']['plotLines'].push({
-          color: '#FF0000', // Red
-          width: 1,
-          value: events[i].attributes.fromdate,  
-          label: {
-            text: events[i].attributes.eventname,
-            rotation: 0,
-            y: pos,
-            style: {
-              color: '#FF0000',
-              fontWeight: 'bold'
-            }
-          }
-    }) */
 
     options['xAxis']['plotBands'].push({
           color: 'rgba(255, 0, 0, 0.1)', // Red
