@@ -115,10 +115,6 @@ var options = {
         selected: 1
     },
 
-    // subtitle: {
-    //     text: 'By Type of Shipping Vessel'
-    // },
-
     xAxis: {
         plotBands: []
     },
@@ -233,9 +229,8 @@ $(document).ready(function() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const eventid = urlParams.get('eventid');
-//    const fromdate = parseInt(urlParams.get('fromdate'));
     console.log(eventid);
-//console.log(fromdate);
+    var fromdate;
 
     var features = [];
     var seriesCounter = 0;
@@ -287,6 +282,14 @@ function success(data) {
 
         return feature;
       });
+
+      // Set extent of chart around disruption if disruption is older than last 3 months
+      currentMin = series[series.length-1].date-(24*60*60*1000*90);
+      console.log(currentMin >= fromdate); 
+      if (currentMin >= fromdate) {
+        options['xAxis']['min'] = fromdate-(24*60*60*1000*30);
+        options['xAxis']['max'] = fromdate+(24*60*60*1000*60);
+      }
       
       createChart(series, "portcalls");
 
@@ -330,43 +333,27 @@ function getArcGISdata(data) {
 function getEvents(data) {
 
   events = data.features;
-  //console.log(events);
-  pos = -5
-
-  for (let i = 0; i < events.length; i++) {
-    pos = (pos === -5 ? 10 : -5);
-    options['xAxis']['plotBands'].push({
-          color: 'rgba(255, 0, 0, 0.1)', // Red
-          borderColor: '#FF0000',
-          borderWidth: 0.1,
-          from: events[i].attributes.fromdate, 
-          to:  events[i].attributes.todate, 
-          label: {
-            text: events[i].attributes.eventname,
-            rotation: 0,
-            y: pos,
-            style: {
-              color: '#FF0000',
-              fontWeight: 'bold'
-            }
+  event = events[0]; 
+  pos = 10
+  
+  options['xAxis']['plotBands'].push({
+        color: 'rgba(255, 0, 0, 0.1)', // Red
+        borderColor: '#FF0000',
+        borderWidth: 0.1,
+        from: event.attributes.fromdate, 
+        to:  event.attributes.todate, 
+        label: {
+          text: event.attributes.eventname,
+          rotation: 0,
+          y: pos,
+          style: {
+            color: '#FF0000',
+            fontWeight: 'bold'
           }
-    })
+        }
+  })
 
-    // var d = new Date(); // today!
-    // console.log(d.getTime());
-    // var x = (24*60*60*1000) * 90; 
-    // d.setTime(d.getTime() - x);
-    // console.log(events[i].attributes.fromdate <= d.getTime());
-
-    // if (events[i].attributes.fromdate <= d.getTime()) {
-    //   d.setTime(events[i].attributes.fromdate - x/2);
-    //   console.log(d.getTime(), events[i].attributes.fromdate);
-    //   options['xAxis']['min'] = d.getTime();
-    // }
-
-}
-
-console.log(options['xAxis']);
+  fromdate = event.attributes.fromdate;
 }
 
 Highcharts.getJSON(
@@ -378,10 +365,6 @@ Highcharts.getJSON(
   eventsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
   getEvents
 );
-
-  
-
-    
 
 }); 
 
