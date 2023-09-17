@@ -115,7 +115,7 @@ var options = {
     // },
 
     xAxis: {
-        plotLines: []
+        plotBands: []
     },
 
 
@@ -330,10 +330,12 @@ function getEvents(data) {
 
   for (let i = 0; i < events.length; i++) {
     pos = (pos === -5 ? 10 : -5);
-    options['xAxis']['plotLines'].push({
-          color: '#FF0000', // Red
-          width: 1,
-          value: events[i].attributes.fromdate,  
+    options['xAxis']['plotBands'].push({
+          color: 'rgba(255, 0, 0, 0.1)', // Red
+          borderColor: '#FF0000',
+          borderWidth: 0.1,
+          from: events[i].attributes.fromdate, 
+          to:  events[i].attributes.todate, 
           label: {
             text: events[i].attributes.eventname,
             rotation: 0,
