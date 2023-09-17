@@ -335,6 +335,7 @@ function getEvents(data) {
   events = data.features;
   event = events[0]; 
   pos = 10
+  nports = event.attributes.affectedports.split('; ').length;
   
   options['xAxis']['plotBands'].push({
         color: 'rgba(255, 0, 0, 0.1)', // Red
