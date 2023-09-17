@@ -42,6 +42,11 @@
     color: #54a2ee;
   }
 
+  #source {
+    font-size: x-small;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
 
 
 </style>
@@ -64,8 +69,8 @@
     <div class="card-body">
         <figure class="highcharts-figure">
             <div id="container"></div>
-            <div style="margin-right:10px">
-<!--                 <p style="text-align:right">Source: UN Global Platform.</p> -->
+            <div style="margin-right:10px">                 
+              <p id="source" style="text-align:right">Sources: UN Global Platform; PortWatch.</p> 
             </div>
         </figure>
     </div>
@@ -347,9 +352,21 @@ function getEvents(data) {
           }
     })
 
+    // var d = new Date(); // today!
+    // console.log(d.getTime());
+    // var x = (24*60*60*1000) * 90; 
+    // d.setTime(d.getTime() - x);
+    // console.log(events[i].attributes.fromdate <= d.getTime());
+
+    // if (events[i].attributes.fromdate <= d.getTime()) {
+    //   d.setTime(events[i].attributes.fromdate - x/2);
+    //   console.log(d.getTime(), events[i].attributes.fromdate);
+    //   options['xAxis']['min'] = d.getTime();
+    // }
+
 }
 
-console.log(options['xAxis']['plotLines']);
+console.log(options['xAxis']);
 }
 
 Highcharts.getJSON(
