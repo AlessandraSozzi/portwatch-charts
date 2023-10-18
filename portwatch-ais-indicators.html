@@ -99,7 +99,7 @@ Highcharts.SVGRenderer.prototype.symbols.download = function (x, y, w, h) {
     return path;
 };
 
-const shift = 52*7; // shift of 52*7days - to keep comparing mondays with mondays, tuesdays with tuesdays, etc
+const shift = 365; // Changed from 52*7: 52*7days - to keep comparing mondays with mondays, tuesdays with tuesdays, etc
 
 var options = {
     
