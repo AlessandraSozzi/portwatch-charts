@@ -46,7 +46,11 @@
   }
 
   #source {
-    font-size: x-small;
+    font-size: small;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  #ports {
+    font-size: small;
     font-family: Arial, Helvetica, sans-serif;
   }
 
@@ -72,7 +76,10 @@
     <div class="card-body">
         <figure class="highcharts-figure">
             <div id="container"></div>
-            <div style="margin-right:12px">                 
+            <div style="margin-left:20px">                  
+              <p id="ports" style="text-align:left"></p> 
+            </div>
+            <div style="margin-right:12px">                  
               <p id="source" style="text-align:right">Sources: UN Global Platform; PortWatch.</p> 
             </div>
         </figure>
@@ -269,6 +276,7 @@ $(document).ready(function() {
     
     var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Trade_Data_by_Event/FeatureServer/0/query?"
     var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/portwatch_disruptions_database/FeatureServer/0/query?"
+    var eventswithportsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/disruptions_with_ports/FeatureServer/0/query?"
 
 
 function success(data) {
@@ -361,6 +369,14 @@ function getArcGISdata(data) {
 
 }
 
+function getPorts(data) {
+  ports = data.features;
+  console.log(ports);
+  portsnote = [];
+  ports.forEach(port => portsnote.push(port.attributes.portname + " (" + port.attributes.country + ")"));
+  $('#ports').text("Ports included: "+ portsnote.join("; ") + ".")
+}
+
 function getEvents(data) {
 
   events = data.features;
@@ -396,6 +412,11 @@ Highcharts.getJSON(
   Highcharts.getJSON(
   eventsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
   getEvents
+);
+
+Highcharts.getJSON(
+  eventswithportsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
+  getPorts
 );
 
 }); 
