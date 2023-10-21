@@ -58,7 +58,7 @@
         <li class="nav-item" id="portcalls">
           <a class="nav-link active" href="#">Activity</a>
         </li>
-        <li class="nav-item" id="volume">
+        <li class="nav-item" id="capacity">
           <a class="nav-link" href="#">Volume</a>
         </li>
       </ul>
@@ -153,7 +153,7 @@ var seriesOptions = {
     title: "Daily Passage of Ships",
     name: "Number of Ships"
   },
-  import: {
+  capacity: {
     yAxis: "Metric Tons",
     title: "Volume",
     name: 'Daily Volume'
@@ -279,31 +279,27 @@ function success(data) {
       var series = features.map(function(feature) {
         datapoint = {
           date: feature.attributes.date, 
-          cargo: parseInt(feature.attributes.portcalls_cargo),
-          tanker: parseInt(feature.attributes.portcalls_tanker),
-          portcalls: parseInt(feature.attributes.portcalls),
-          import: parseFloat(feature.attributes.import),
-          export: parseFloat(feature.attributes.export)
+          cargo: parseInt(feature.attributes.n_cargo),
+          tanker: parseInt(feature.attributes.n_tanker),
+          portcalls: parseInt(feature.attributes.n_total),
+          capacity: parseFloat(feature.attributes.capacity),
         }
                           
         return datapoint;
       });
       series.sort((a, b) => a.date - b.date);
 
-      var import7MA = movingAvg(series.map(x => x.import), 7, 0);
-      var export7MA = movingAvg(series.map(x => x.export), 7, 0);
+      var capacity7MA = movingAvg(series.map(x => x.capacity), 7, 0);
       var portcalls7MA = movingAvg(series.map(x => x.portcalls), 7, 0);
 
 
 
       series = series.map(function(feature, i) {
 
-        feature['import7MA'] = import7MA[i];
-        feature['export7MA'] = export7MA[i];
+        feature['capacity7MA'] = capacity7MA[i];
         feature['portcalls7MA'] = portcalls7MA[i];
         if (i > shift) {
-          feature['import7MAshifted'] = import7MA[i-shift];
-          feature['export7MAshifted'] = export7MA[i-shift];
+          feature['capacity7MAshifted'] = capacity7MA[i-shift];
           feature['portcalls7MAshifted'] = portcalls7MA[i-shift];
         }
 
@@ -340,7 +336,7 @@ function getArcGISdata(data) {
       const lastObjectId = chunk[chunk.length-1];
       console.log(firstObjectId, lastObjectId);
 
-      const queryUrl = baseUrl+"where=portid%3D%27"+portid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=portid,portname,date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json";
+      const queryUrl = baseUrl+"where=portid%3D%27"+portid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=portid,portname,date,n_cargo,n_tanker,n_total,capacity&returnGeometry=false&outSR=&f=json";
 
       Highcharts.getJSON(
         queryUrl,
