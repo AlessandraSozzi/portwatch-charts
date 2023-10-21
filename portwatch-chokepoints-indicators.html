@@ -56,10 +56,10 @@
     <div class="card-header">
       <ul class="nav nav-tabs card-header-tabs">
         <li class="nav-item" id="portcalls">
-          <a class="nav-link active" href="#">Port Calls</a>
+          <a class="nav-link active" href="#">Activity</a>
         </li>
         <li class="nav-item" id="volume">
-          <a class="nav-link" href="#">Import Volume</a>
+          <a class="nav-link" href="#">Volume</a>
         </li>
       </ul>
     </div>
@@ -150,18 +150,13 @@ var options = {
 var seriesOptions = {
   portcalls: {
     yAxis: "Number of Ships",
-    title: "Daily Arrivals of Ships",
+    title: "Daily Passage of Ships",
     name: "Number of Ships"
   },
   import: {
     yAxis: "Metric Tons",
-    title: "Import Volume",
-    name: 'Daily Import Volume'
-  },
-  export: {
-    yAxis: "Metric Tons",
-    title: "Export Volume",
-    name: 'Daily Export Volume'
+    title: "Volume",
+    name: 'Daily Volume'
   }
 }
 
@@ -241,7 +236,7 @@ function createChart(data, name, portname) {
   }]);
 
   options['title'] = {
-    text: (portname.startsWith('Port') ? portname : "Port "+portname) + ": " + seriesOptions[name].title
+    text: portname + ": " + seriesOptions[name].title
   };
 
   console.log(options.series);
@@ -266,8 +261,7 @@ $(document).ready(function() {
 
 
 
-    var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Trade_Data/FeatureServer/0/query?"
-    var eventsUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/disruptions_with_ports/FeatureServer/0/query?"
+    var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0/query?"
 
 
 function success(data) {
@@ -357,35 +351,7 @@ function getArcGISdata(data) {
 
 }
 
-function getEvents(data) {
 
-  events = data.features;
-  pos = -5
-
-  for (let i = 0; i < events.length; i++) {
-    pos = (pos === -5 ? 10 : -5);
-
-    options['xAxis']['plotBands'].push({
-          color: 'rgba(255, 0, 0, 0.1)', // Red
-          borderColor: '#FF0000',
-          borderWidth: 0.1,
-          from: events[i].attributes.fromdate, 
-          to:  events[i].attributes.todate, 
-          label: {
-            text: events[i].attributes.eventname,
-            rotation: 0,
-            y: pos,
-            style: {
-              color: '#FF0000',
-              fontWeight: 'bold'
-            }
-          }
-    })
-
-  }
-
-  console.log(options['xAxis']['plotBands']);
-}
 
 
 Highcharts.getJSON(
@@ -393,12 +359,7 @@ Highcharts.getJSON(
   getArcGISdata
 );
 
-Highcharts.getJSON(
-  eventsUrl+"where=portid%3D%27"+portid+"%27&outFields=*&outSR=4326&f=json",
-  getEvents
-);
     
-
 }); 
 
 
