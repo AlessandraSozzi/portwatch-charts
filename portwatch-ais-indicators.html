@@ -287,6 +287,10 @@ function success(data) {
 
       var series = features.map(function(feature) {
         datapoint = {
+          portid: feature.attributes.portid,
+          portname: feature.attributes.portname,
+          country: feature.attributes.country,
+          ISO3: feature.attributes.ISO3,
           date: feature.attributes.date, 
           cargo: parseInt(feature.attributes.portcalls_cargo),
           tanker: parseInt(feature.attributes.portcalls_tanker),
