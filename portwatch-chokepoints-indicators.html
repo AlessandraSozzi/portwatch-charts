@@ -56,10 +56,10 @@
     <div class="card-header">
       <ul class="nav nav-tabs card-header-tabs">
         <li class="nav-item" id="portcalls">
-          <a class="nav-link active" href="#">Activity</a>
+          <a class="nav-link active" href="#">Transit Calls</a>
         </li>
         <li class="nav-item" id="capacity">
-          <a class="nav-link" href="#">Volume</a>
+          <a class="nav-link" href="#">Transit Trade Volume</a>
         </li>
       </ul>
     </div>
@@ -150,13 +150,13 @@ var options = {
 var seriesOptions = {
   portcalls: {
     yAxis: "Number of Ships",
-    title: "Daily Passage of Ships",
+    title: "Daily Transit Calls",
     name: "Number of Ships"
   },
   capacity: {
     yAxis: "Metric Tons",
-    title: "Volume",
-    name: 'Daily Volume'
+    title: "Transit Trade Volume",
+    name: 'Daily Transit Trade Volume'
   }
 }
 
@@ -300,7 +300,7 @@ function success(data) {
         feature['portcalls7MA'] = portcalls7MA[i];
         if (i > shift) {
           feature['capacity7MAshifted'] = capacity7MA[i-shift];
-          feature['portcalls7MAshifted'] = portcalls7MA[i-shift];
+          feature['portcalls7MAshifted'] = portcalls7MA [i-shift];
         }
 
         return feature;
