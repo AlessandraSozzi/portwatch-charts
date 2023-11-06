@@ -193,7 +193,7 @@ var features = [];
 var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/sankey_data/FeatureServer/0/query?"
 
 Highcharts.getJSON(
-  baseUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
+  baseUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&cacheHint=true&f=json",
   success
 );
 

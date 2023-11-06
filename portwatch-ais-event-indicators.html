@@ -359,7 +359,7 @@ function getArcGISdata(data) {
       const lastObjectId = chunk[chunk.length-1];
       console.log(firstObjectId, lastObjectId);
 
-      const queryUrl = baseUrl+"where=eventid%3D%27"+eventid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=date,portcalls_cargo,portcalls_tanker,portcalls,import,export&returnGeometry=false&outSR=&f=json";
+      const queryUrl = baseUrl+"where=eventid%3D%27"+eventid+"%27"+"%20AND%20objectID%20>%3D%20"+firstObjectId+"%20AND%20objectID%20<%3D%20"+lastObjectId+"&outFields=date,portcalls_cargo,portcalls_tanker,portcalls,import,export&cacheHint=true&returnGeometry=false&outSR=&f=json";
 
       Highcharts.getJSON(
         queryUrl,
@@ -406,17 +406,17 @@ function getEvents(data) {
 }
 
 Highcharts.getJSON(
-  baseUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&returnIdsOnly=true&outSR=4326&f=json",
+  baseUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&returnIdsOnly=true&outSR=4326&cacheHint=true&f=json",
   getArcGISdata
 );
 
   Highcharts.getJSON(
-  eventsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
+  eventsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&cacheHint=true&f=json",
   getEvents
 );
 
 Highcharts.getJSON(
-  eventswithportsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&f=json",
+  eventswithportsUrl+"where=eventid%3D%27"+eventid+"%27&outFields=*&outSR=4326&cacheHint=true&f=json",
   getPorts
 );
 
