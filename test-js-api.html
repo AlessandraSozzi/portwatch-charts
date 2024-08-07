@@ -1,0 +1,137 @@
+<!-- /* Author CSF */ -->
+
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/data.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://js.arcgis.com/4.28/"></script>
+<script src="utils.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+
+<!-- <link rel="stylesheet" type="text/css" href="Highcharts-IMF.css"/> -->
+
+<style>
+
+  #container {
+        min-width: 600px;
+        margin: 0 auto;
+    }
+
+  .highcharts-background {
+    fill: #fff; }
+
+  .highcharts-plot-background {
+    fill: #fff; }
+
+  body {
+    background-color: #0a1a30; }
+
+  .card-header {
+    background-color: #0a1a30;
+    border-bottom: none;
+  }
+
+  .card.text-center {
+    border: none;
+  }
+
+  .nav-link {
+    color: #52bdec;
+  }
+
+  #source {
+    font-size: small;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+</style>
+
+
+<div class="card text-center">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item" id="portcalls">
+          <a class="nav-link active" href="#">Port Calls</a>
+        </li>
+        <li class="nav-item" id="import">
+          <a class="nav-link" href="#">Import Volume</a>
+        </li>
+        <li class="nav-item" id="export">
+          <a class="nav-link" href="#">Export Volume</a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body">
+      <figure class="highcharts-figure">
+        <div id="container"></div>
+        <div style="margin-right:12px; margin-left:12px">   
+          <span class="source" style="float:left;font-size:1vw;">Note: Latest data points are subject to revision.</span>               
+          <span class="source" style="float:right;text-align:right;font-size:1vw;">Sources: UN Global Platform; PortWatch.</span>  
+        </div>
+
+    </figure>
+    </div>
+  </div>
+
+
+
+
+<script>
+
+Highcharts.SVGRenderer.prototype.symbols.download = downloadSymbol;
+
+
+$(document).ready(function() {
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const portid = urlParams.get('portid');
+    console.log(portid);
+
+
+    var features = [];
+    var seriesCounter = 0;
+    var nChunks;
+
+    var baseUrl = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Trade_Data/FeatureServer/0"
+
+    require(["esri/layers/FeatureLayer", "esri/rest/support/Query"], (FeatureLayer, Query) => {
+      const layer = new FeatureLayer({
+        url: baseUrl
+      });
+
+      let query = layer.createQuery();
+      query.where = "portid = '"+portid+"'";
+      query.maxRecordCountFactor = 5; 
+      query.cacheHint = true;
+
+      layer.queryFeatures(query).then(function(results){
+        // prints an array of all the features in the service to the console
+        
+        features = results.features;
+        var data = generateData(features);
+        var chartOptions = createChart(data, chartType="portcalls");
+        var chart = new Highcharts.stockChart('container', chartOptions);
+
+        $('.nav.nav-tabs.card-header-tabs > li').on('click', function(e) {
+          $('.nav.nav-tabs.card-header-tabs > li > a').removeClass('active');
+          $(this).children().addClass('active');
+          const selected = $(this).attr('id');
+          chartOptions = createChart(data, chartType=selected);
+          chart = new Highcharts.stockChart('container', chartOptions);
+        }); 
+
+      });
+    });
+
+});
+
+
+</script>
